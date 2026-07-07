@@ -1,56 +1,103 @@
 <style>
-/* ===== SecNotes Bestiaim - Home ===== */
+/* =========================================================
+   SecNotes Bestiaim - Página inicial personalizada
+   ========================================================= */
 
-body {
-  background: #0b0f14;
-  color: #d1d5db;
+/* Oculta el encabezado automático del tema Hacker */
+body > header {
+  display: none !important;
 }
 
+/* Ajusta el contenido al ocultar el header del tema */
+#main_content {
+  padding-top: 20px !important;
+}
+
+/* Fondo general */
+body {
+  background: #0b0f14 !important;
+  color: #d1d5db !important;
+}
+
+/* Contenedores del tema */
 .markdown-body,
 .container-lg,
-.wrapper {
-  background: #0b0f14;
-  color: #d1d5db;
+.wrapper,
+#main_content {
+  background: #0b0f14 !important;
+  color: #d1d5db !important;
 }
 
+/* Contenedor principal */
 .secnotes-home {
-  max-width: 1050px;
+  max-width: 1080px;
   margin: 0 auto;
-  padding: 20px 10px 50px 10px;
+  padding: 20px 15px 60px 15px;
 }
 
-/* Header */
+/* Encabezado propio */
 .hero {
   text-align: center;
-  padding: 35px 15px 30px 15px;
+  padding: 30px 15px 38px 15px;
   border-bottom: 1px solid #1f2937;
-  margin-bottom: 35px;
+  margin-bottom: 38px;
 }
 
+/* Logo Bestiaim */
 .hero-logo {
   max-width: 360px;
   width: 100%;
   height: auto;
-  margin: 0 auto 20px auto;
+  margin: 0 auto 22px auto;
   display: block;
   border-radius: 14px;
-  box-shadow: 0 0 35px rgba(56, 189, 248, 0.18);
+  box-shadow: 0 0 35px rgba(56, 189, 248, 0.22);
 }
 
+/* Título principal */
 .hero h1 {
   font-size: 2.8rem;
   margin: 0;
   color: #38bdf8;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
+  text-shadow: 0 0 14px rgba(56, 189, 248, 0.35);
 }
 
+/* Subtítulo */
 .hero p {
-  color: #9ca3af;
-  font-size: 1.08rem;
-  margin-top: 12px;
+  color: #cbd5e1;
+  font-size: 1.05rem;
+  margin-top: 14px;
 }
 
-/* Titles */
+/* Bloque pequeño bajo el logo */
+.repo-mini {
+  margin-top: 16px;
+  color: #9ca3af;
+  font-size: 0.92rem;
+}
+
+/* Botón GitHub personalizado */
+.repo-mini a {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 7px 14px;
+  border: 1px solid #22c55e;
+  border-radius: 999px;
+  color: #22c55e !important;
+  text-decoration: none;
+  font-size: 0.86rem;
+  font-weight: 600;
+  background: #020617;
+}
+
+.repo-mini a:hover {
+  background: #22c55e;
+  color: #020617 !important;
+  text-decoration: none;
+}
+
+/* Títulos de sección */
 .section-title {
   color: #e5e7eb;
   font-size: 1.8rem;
@@ -59,7 +106,7 @@ body {
   border-bottom: 1px solid #1f2937;
 }
 
-/* Cards */
+/* Tarjetas de máquinas */
 .machine-card {
   display: flex;
   gap: 24px;
@@ -69,7 +116,7 @@ body {
   border-left: 4px solid #22c55e;
   border-radius: 14px;
   padding: 18px;
-  margin: 24px 0;
+  margin: 26px 0;
   box-shadow: 0 0 18px rgba(34, 197, 94, 0.08);
   transition: all 0.2s ease-in-out;
 }
@@ -80,6 +127,7 @@ body {
   box-shadow: 0 0 25px rgba(34, 197, 94, 0.18);
 }
 
+/* Imagen de la tarjeta */
 .machine-card img {
   width: 330px;
   height: 185px;
@@ -89,6 +137,7 @@ body {
   background: #020617;
 }
 
+/* Contenido de la tarjeta */
 .machine-content {
   flex: 1;
 }
@@ -100,12 +149,13 @@ body {
 }
 
 .machine-content h2 a {
-  color: #f9fafb;
+  color: #f9fafb !important;
   text-decoration: none;
 }
 
 .machine-content h2 a:hover {
-  color: #38bdf8;
+  color: #38bdf8 !important;
+  text-decoration: none;
 }
 
 .machine-content p {
@@ -114,7 +164,7 @@ body {
   margin-bottom: 12px;
 }
 
-/* Tags */
+/* Etiquetas */
 .tags {
   margin: 12px 0;
 }
@@ -131,7 +181,14 @@ body {
   margin-bottom: 6px;
 }
 
-/* Buttons */
+/* Metadata */
+.meta {
+  color: #9ca3af;
+  font-size: 0.9rem;
+  margin-top: 10px;
+}
+
+/* Botón de tarjeta */
 .card-actions {
   margin-top: 14px;
 }
@@ -153,14 +210,7 @@ body {
   text-decoration: none;
 }
 
-/* Metadata */
-.meta {
-  color: #9ca3af;
-  font-size: 0.9rem;
-  margin-top: 10px;
-}
-
-/* Warning */
+/* Caja de aviso */
 .warning-box {
   background: #111827;
   border-left: 4px solid #f97316;
@@ -175,7 +225,7 @@ body {
   color: #fb923c;
 }
 
-/* Responsive */
+/* Ajuste responsive */
 @media (max-width: 850px) {
   .machine-card {
     flex-direction: column;
@@ -201,14 +251,23 @@ body {
 
   <div class="hero">
     <img class="hero-logo" src="assets/img/logo-bestiaim.png" alt="Logo Bestiaim">
+
     <h1>SecNotes Bestiaim</h1>
+
     <p>Write-ups, apuntes e informes de laboratorios de ciberseguridad.</p>
+
+    <div class="repo-mini">
+      <span>Repositorio personal de documentación técnica, laboratorios de pentesting y notas de ciberseguridad.</span>
+      <br>
+      <a href="https://github.com/bestiaim/secnotes" target="_blank">Ver repositorio en GitHub</a>
+    </div>
   </div>
 
   <h2 class="section-title">Máquinas resueltas</h2>
 
   <div class="machine-card">
     <img src="assets/img/cards/nodeception.png" alt="NodeCeption">
+
     <div class="machine-content">
       <h2>
         <a href="maquinas/nodeception.html">NodeCeption - Pentesting Lab</a>
@@ -217,13 +276,14 @@ body {
       <p>
         Resolución paso a paso de la máquina vulnerable NodeCeption. El laboratorio incluye
         reconocimiento, escaneo de puertos, enumeración web, análisis de endpoints expuestos,
-        explotación mediante abuso de una automatización en n8n y escalada de privilegios local.
+        explotación mediante abuso de una automatización en n8n y escalada de privilegios local hasta root.
       </p>
 
       <div class="tags">
         <span class="tag">Linux</span>
         <span class="tag">n8n</span>
         <span class="tag">Web</span>
+        <span class="tag">REST API</span>
         <span class="tag">Reverse Shell</span>
         <span class="tag">Privilege Escalation</span>
       </div>
@@ -238,6 +298,7 @@ body {
 
   <div class="machine-card">
     <img src="assets/img/cards/cyberpunk.png" alt="Cyberpunk">
+
     <div class="machine-content">
       <h2>
         <a href="maquinas/cyberpunk.html">Cyberpunk - Pentesting Lab</a>
@@ -254,6 +315,7 @@ body {
         <span class="tag">FTP</span>
         <span class="tag">Apache</span>
         <span class="tag">PHP</span>
+        <span class="tag">Webroot Upload</span>
         <span class="tag">Python Hijacking</span>
       </div>
 
