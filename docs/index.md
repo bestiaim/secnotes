@@ -252,7 +252,7 @@ body {
   <div class="hero">
     <img class="hero-logo" src="assets/img/logo-bestiaim.png" alt="Logo Bestiaim">
 
-    <h1>SecNotes Bestiaim</h1>
+    <h1>Ciber-Notes Bestiaim</h1>
 
     <p>Write-ups, apuntes e informes de laboratorios de ciberseguridad.</p>
 
