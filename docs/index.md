@@ -1,6 +1,6 @@
 <style>
 /* =========================================================
-   SecNotes BESTIAIM - Página inicial personalizada
+   BESTIAIM - Página inicial personalizada
    ========================================================= */
 
 /* Oculta el encabezado automático del tema Hacker */
