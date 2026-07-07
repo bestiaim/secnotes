@@ -48,6 +48,7 @@ MAC: 08:00:27:5a:87:bc
 <img src="../assets/img/cyberpunk/01_ip_propia.png" alt="Figura 1. IP máquina atacante" width="850">
 
 **Figura 1.** Validación de la dirección IP de la máquina atacante Kali Linux.
+
 Luego se realizó descubrimiento de hosts activos dentro de la red local.
 
 ```bash
@@ -66,6 +67,10 @@ Vendor: Oracle VirtualBox virtual NIC
 
 El host `192.168.1.40` fue identificado como la máquina objetivo **Cyberpunk**.
 
+<img src="../assets/img/cyberpunk/02_ip_objetivo.png" alt="Figura 2. IP máquina objetivo" width="850">
+
+**Figura 2.** Identificación de la dirección IP de la máquina objetivo Cyberpunk.
+
 ## 4. Escaneo
 
 Se ejecutó un escaneo completo de puertos TCP.
@@ -73,6 +78,9 @@ Se ejecutó un escaneo completo de puertos TCP.
 ```bash
 nmap -p- -O 192.168.1.40
 ```
+<img src="../assets/img/cyberpunk/03_nmap_completo.png" alt="Figura 3. Escaneo completo de puertos" width="850">
+
+**Figura 3.** Escaneo completo de puertos TCP mediante Nmap.
 
 Puertos identificados:
 
@@ -97,6 +105,10 @@ Se realizó enumeración específica sobre los puertos abiertos.
 ```bash
 nmap -p21,22,80 -sVC -Pn 192.168.1.40 -T4
 ```
+
+<img src="../assets/img/cyberpunk/04_versiones_puertos.png" alt="Figura 4. Detección de versiones" width="850">
+
+**Figura 4.** Enumeración de servicios y versiones en los puertos 21, 22 y 80.
 
 | Puerto | Servicio | Versión / información obtenida |
 |---|---|---|
@@ -127,6 +139,9 @@ Credencial usada:
 Usuario: anonymous
 Contraseña: anonymous / vacío
 ```
+<img src="../assets/img/cyberpunk/05_ftp_conexion.png" alt="Figura 5. Conexión FTP anónima" width="850">
+
+**Figura 5.** Conexión exitosa al servicio FTP utilizando el usuario `anonymous`.
 
 Respuesta relevante:
 
@@ -160,6 +175,9 @@ ls
 get netrunner.jpeg
 exit
 ```
+<img src="../assets/img/cyberpunk/06_descargas_ftp.png" alt="Figura 6. Descarga de archivos FTP" width="850">
+
+**Figura 6.** Descarga de archivos expuestos mediante FTP anónimo.
 
 Archivos obtenidos:
 
@@ -178,6 +196,9 @@ cat secret.txt
 cat index.html
 file netrunner.jpeg
 ```
+<img src="../assets/img/cyberpunk/07_lectura_secret_txt.png" alt="Figura 7. Lectura de secret.txt" width="850">
+
+**Figura 7.** Lectura del archivo `secret.txt`, el cual entrega una pista hacia el servicio Apache.
 
 Pista encontrada en `secret.txt`:
 
@@ -206,6 +227,9 @@ gobuster dir \
   -x html,htm,php,txt,xml,js \
   -u http://192.168.1.40
 ```
+<img src="../assets/img/cyberpunk/08_gobuster_puerto_80.png" alt="Figura 8. Gobuster puerto 80" width="850">
+
+**Figura 8.** Enumeración de rutas web mediante Gobuster sobre el puerto 80.
 
 Resultados:
 
@@ -217,6 +241,10 @@ Resultados:
 | `/server-status` | 403 | Recurso existente, acceso denegado |
 
 La existencia de los mismos archivos por FTP y HTTP indicó que FTP probablemente expone el directorio raíz del sitio web o una copia directa de este.
+
+<img src="../assets/img/cyberpunk/09_secret_web.png" alt="Figura 9. secret.txt accesible por HTTP" width="850">
+
+**Figura 9.** Validación de que el archivo `secret.txt` también es accesible desde el servicio HTTP.
 
 ### 6.2 Validación de escritura FTP
 
@@ -239,6 +267,9 @@ Contenido observado:
 ```text
 podemos subir archivos a ftp
 ```
+<img src="../assets/img/cyberpunk/10_carga_archivo_rueba.png" alt="Figura 10. Carga de archivo de prueba" width="850">
+
+**Figura 10.** Carga exitosa de un archivo de prueba mediante FTP y validación desde Apache.
 
 Este resultado confirmó que el usuario anónimo podía escribir en el directorio publicado por Apache.
 
@@ -267,6 +298,9 @@ Resultado:
 ```text
 PHP_OK
 ```
+<img src="../assets/img/cyberpunk/11_carga_php_prueba.png" alt="Figura 11. Prueba de ejecución PHP" width="850">
+
+**Figura 11.** Validación de ejecución de código PHP desde el servidor web.
 
 Esto confirmó que Apache ejecutaba archivos PHP subidos por FTP. La vulnerabilidad pasó de carga arbitraria de archivos a ejecución remota de código.
 
@@ -306,6 +340,9 @@ Resultado:
 connect to [192.168.1.28] from (UNKNOWN) [192.168.1.40]
 www-data@Cyberpunk:/var/www/html$
 ```
+<img src="../assets/img/cyberpunk/12_php_reverse_shell.png" alt="Figura 12. Reverse shell PHP" width="850">
+
+**Figura 12.** Obtención de reverse shell mediante archivo PHP cargado por FTP.
 
 Se obtuvo acceso inicial como `www-data`, usuario asociado al servicio web Apache.
 
@@ -343,12 +380,18 @@ También se encontró el archivo:
 ```text
 /opt/arasaka.txt
 ```
+<img src="../assets/img/cyberpunk/13_arasaka_txt_encriptado.png" alt="Figura 13. Archivo arasaka.txt" width="850">
+
+**Figura 13.** Lectura del archivo `arasaka.txt` con contenido codificado.
 
 El contenido de `arasaka.txt` estaba compuesto por caracteres típicos de **Brainfuck**, como `+`, `>`, `<`, `-`, `.` y corchetes. Al decodificarlo, se obtuvo:
 
 ```text
 cyberpunk2077
 ```
+<img src="../assets/img/cyberpunk/14_desencripcion.png" alt="Figura 14. Desencripción de arasaka.txt" width="850">
+
+**Figura 14.** Decodificación del contenido identificado en `arasaka.txt`.
 
 Esta cadena fue usada como posible contraseña del usuario `arasaka`.
 
@@ -371,6 +414,9 @@ randombase64.py
 user.txt
 [FLAG USER REDACTED]
 ```
+<img src="../assets/img/cyberpunk/15_bandera_user.png" alt="Figura 15. Bandera user.txt" width="850">
+
+**Figura 15.** Obtención de la bandera `user.txt` como usuario `arasaka`.
 
 ## 9. Escalada de privilegios
 
@@ -389,6 +435,10 @@ Resultado relevante:
 ```
 
 El usuario `arasaka` podía ejecutar como root un script Python ubicado dentro de su propio directorio personal.
+
+<img src="../assets/img/cyberpunk/16_suid.png" alt="Figura 16. Revisión de permisos sudo" width="850">
+
+**Figura 16.** Revisión de permisos privilegiados disponibles para el usuario `arasaka`.
 
 ### 9.2 Análisis del script
 
@@ -451,6 +501,9 @@ Resultado:
 root.txt
 [FLAG ROOT REDACTED]
 ```
+<img src="../assets/img/cyberpunk/17_root.png" alt="Figura 17. Bandera root.txt" width="850">
+
+**Figura 17.** Escalada de privilegios y obtención de la bandera `root.txt`.
 
 ## 10. Banderas
 
