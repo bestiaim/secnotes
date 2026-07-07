@@ -45,7 +45,9 @@ Interfaz: eth0
 IP atacante: 192.168.1.28
 MAC: 08:00:27:5a:87:bc
 ```
+<img src="../assets/img/cyberpunk/01_ip_propia.png" alt="Figura 1. IP máquina atacante" width="850">
 
+**Figura 1.** Validación de la dirección IP de la máquina atacante Kali Linux.
 Luego se realizó descubrimiento de hosts activos dentro de la red local.
 
 ```bash
